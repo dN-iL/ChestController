@@ -1,0 +1,6 @@
+framework module Pods_ChestController {
+  umbrella header "Pods-ChestController-umbrella.h"
+
+  export *
+  module * { export * }
+}

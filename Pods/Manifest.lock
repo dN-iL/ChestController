@@ -1,0 +1,26 @@
+PODS:
+  - Alamofire (4.0.1)
+  - CocoaAsyncSocket (7.5.0):
+    - CocoaAsyncSocket/GCD (= 7.5.0)
+  - CocoaAsyncSocket/GCD (7.5.0)
+  - CocoaMQTT (1.0.10):
+    - CocoaAsyncSocket (~> 7.5.0)
+    - MSWeakTimer (~> 1.1.0)
+  - MSWeakTimer (1.1.0)
+  - SwiftyJSON (3.1.1)
+
+DEPENDENCIES:
+  - Alamofire
+  - CocoaMQTT
+  - SwiftyJSON
+
+SPEC CHECKSUMS:
+  Alamofire: 7682d43245de14874acd142ec137b144aa1dd335
+  CocoaAsyncSocket: 3baeb1ddd969f81cf9fca81053ae49ef2d1cbbfa
+  CocoaMQTT: ac6730349bebc7ceb42a62297eaf8291fce8aa93
+  MSWeakTimer: 9426150f933b80ed3acf3f6d228e4b61f0e303c8
+  SwiftyJSON: f0be2e604f83e8405a624e9f891898bf6ed4e019
+
+PODFILE CHECKSUM: f87e48bba0f2597fb8eca7343fce20e71eb085f3
+
+COCOAPODS: 1.1.1
