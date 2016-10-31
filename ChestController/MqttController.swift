@@ -10,5 +10,19 @@ import Foundation
 import CocoaMQTT
 
 public class MqttController {
+    let mqtt: CocoaMQTT
+    let topic = "logs"
     
+    init() {
+        self.mqtt = CocoaMQTT(clientId: "ChestController-\(arc4random_uniform(99999999))", host: "192.168.0.2", port: 9001)
+    }
+    
+    func publishHealthData() {
+        let message = buildHealthDataMessage()
+        mqtt.publish(topic, withString: message)
+    }
+    
+    private func buildHealthDataMessage() -> String {
+        return ""
+    }
 }

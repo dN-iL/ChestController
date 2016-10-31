@@ -14,7 +14,6 @@ class MissionOverviewTableViewController: UITableViewController {
     
     var restApi = RestApiController()
     var missions : [Mission]?
-    var selectedMission : Mission?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,7 +38,7 @@ class MissionOverviewTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: "MissionOverviewTableViewCell", for: indexPath) as? MissionOverviewTableViewCell,
             let missions = missions {
-           cell.missionName.text = missions[indexPath.row].name
+            cell.missionName.text = missions[indexPath.row].name
             return cell
         }
         return tableView.dequeueReusableCell(withIdentifier: "MissionOverviewTableViewCell", for: indexPath)
@@ -48,8 +47,6 @@ class MissionOverviewTableViewController: UITableViewController {
     // MARK: - Navigation
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
         if segue.identifier == "toDetailView" {
             if let destination = segue.destination as? MissionDetailViewController,
                 let index = missionTableView.indexPathForSelectedRow,

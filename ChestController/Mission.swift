@@ -9,8 +9,8 @@
 import Foundation
 
 public class Mission {
-    var id: String!
-    var name: String!
+    var id: String
+    var name: String
     var participants: [Participant]?
     
     init(id: String, name: String, participants: [Participant]) {

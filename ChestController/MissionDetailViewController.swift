@@ -14,6 +14,7 @@ class MissionDetailViewController: UIViewController {
     
     @IBOutlet var missionNameLabel: UILabel!
     @IBOutlet var statusLabel: UILabel!
+    @IBOutlet var participantStatusLabel: UILabel!
     
     @IBAction func startComponentTest(_ sender: AnyObject) {
     }
@@ -23,12 +24,20 @@ class MissionDetailViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        missionNameLabel.text = mission?.name
+        initializeData()
+        
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    private func initializeData() {
+        if let mission = mission {
+            missionNameLabel.text = mission.name
+            statusLabel.text = "ID: \(mission.id). "
+            if let participants = mission.participants {
+                participantStatusLabel.text = "This mission currently has \(participants.count) participants"
+            } else {
+                participantStatusLabel.text = "No participants found though!"
+            }
+        }
     }
     
 
