@@ -6,7 +6,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Root View Controller-->
+        <!--Mission Overview-->
         <scene sceneID="f6F-s4-SN1">
             <objects>
                 <tableViewController id="c1H-KI-4fH" customClass="MissionOverviewTableViewController" customModule="ChestController" customModuleProvider="target" sceneMemberID="viewController">
@@ -33,7 +33,7 @@
                                 </tableViewCellContentView>
                                 <connections>
                                     <outlet property="missionName" destination="OTD-Hp-52H" id="I8w-hh-qZ8"/>
-                                    <segue destination="BYZ-38-t0r" kind="show" id="1s6-WS-pyW"/>
+                                    <segue destination="BYZ-38-t0r" kind="show" identifier="toDetailView" id="1s6-WS-pyW"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
@@ -43,7 +43,7 @@
                         </connections>
                     </tableView>
                     <toolbarItems/>
-                    <navigationItem key="navigationItem" title="Root View Controller" id="xHA-fj-NMC"/>
+                    <navigationItem key="navigationItem" title="Mission Overview" id="xHA-fj-NMC"/>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="missionTableView" destination="UnA-Wf-qiz" id="4yf-Xj-0RZ"/>

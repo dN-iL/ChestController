@@ -10,6 +10,8 @@ import UIKit
 
 class MissionDetailViewController: UIViewController {
     
+    var mission: Mission?
+    
     @IBOutlet var missionNameLabel: UILabel!
     @IBOutlet var statusLabel: UILabel!
     
@@ -21,8 +23,7 @@ class MissionDetailViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        missionNameLabel.text = mission?.name
     }
 
     override func didReceiveMemoryWarning() {
