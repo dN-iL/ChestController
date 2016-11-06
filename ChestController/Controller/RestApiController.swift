@@ -16,11 +16,11 @@ protocol RestApiControllerDelegate {
 
 public class RestApiController {
     
-    var url = "http://192.168.0.2:80"
+    var url = "http://192.168.0.2:9000/api/mission"
     var delegate : RestApiControllerDelegate?
     
     func getMissions() {
-        Alamofire.request(url+"/api/mission").validate().responseJSON { response in
+        Alamofire.request(url).validate().responseJSON { response in
             guard response.result.error == nil else {
                 return
             }
@@ -33,7 +33,6 @@ public class RestApiController {
     
     private func processMissionsFromJSON(jsonObj: JSON) -> [Mission] {
         var missions = [Mission]()
-        print(jsonObj)
         for(_, missionJson):(String, JSON) in jsonObj {
             var participants = [Participant]()
             for(_, participantJson):(String, JSON) in missionJson["participants"] {
@@ -42,14 +41,6 @@ public class RestApiController {
             missions.append(Mission(id: String(describing: missionJson["_id"]), name: String(describing: missionJson["name"]), participants: participants))
         }
         return missions
-    }
-    
-    func startStdDummyData() {
-        Alamofire.request(url+"/api/mockupData/sensorData/start")
-    }
-    
-    func stopStdDummyData() {
-        Alamofire.request(url+"/api/mockupData/sensorData/stop")
     }
     
 }

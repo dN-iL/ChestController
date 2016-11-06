@@ -52,8 +52,6 @@ class MissionOverviewTableViewController: UITableViewController {
                 let index = missionTableView.indexPathForSelectedRow,
                 let mission = missions?[index.row] {
                 destination.mission = mission
-                destination.rest = restApi
-                restApi.stopStdDummyData()
             }
         }
     }

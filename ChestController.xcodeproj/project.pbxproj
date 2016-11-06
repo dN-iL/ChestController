@@ -20,6 +20,11 @@
 		6543BD341DC77FE8001A6153 /* Participant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6543BD331DC77FE8001A6153 /* Participant.swift */; };
 		6564FCCE1DC7964800B40B35 /* MissionOverviewTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6564FCCD1DC7964800B40B35 /* MissionOverviewTableViewCell.swift */; };
 		6564FCD01DC7B29300B40B35 /* ScenarioBlocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6564FCCF1DC7B29300B40B35 /* ScenarioBlocks.swift */; };
+		6568597E1DCE08BD006C5B24 /* ComponentTestController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6568597D1DCE08BD006C5B24 /* ComponentTestController.swift */; };
+		656859801DCE0C76006C5B24 /* ScenarioBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6568597F1DCE0C76006C5B24 /* ScenarioBlock.swift */; };
+		656859821DCE18B2006C5B24 /* LogMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656859811DCE18B2006C5B24 /* LogMessage.swift */; };
+		656859841DCF40E3006C5B24 /* Sensors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656859831DCF40E3006C5B24 /* Sensors.swift */; };
+		656859861DCF416C006C5B24 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656859851DCF416C006C5B24 /* Event.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +43,11 @@
 		6543BD331DC77FE8001A6153 /* Participant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Participant.swift; sourceTree = "<group>"; };
 		6564FCCD1DC7964800B40B35 /* MissionOverviewTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MissionOverviewTableViewCell.swift; sourceTree = "<group>"; };
 		6564FCCF1DC7B29300B40B35 /* ScenarioBlocks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScenarioBlocks.swift; sourceTree = "<group>"; };
+		6568597D1DCE08BD006C5B24 /* ComponentTestController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComponentTestController.swift; sourceTree = "<group>"; };
+		6568597F1DCE0C76006C5B24 /* ScenarioBlock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScenarioBlock.swift; sourceTree = "<group>"; };
+		656859811DCE18B2006C5B24 /* LogMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogMessage.swift; sourceTree = "<group>"; };
+		656859831DCF40E3006C5B24 /* Sensors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sensors.swift; sourceTree = "<group>"; };
+		656859851DCF416C006C5B24 /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		C35E0C3C201764350F418769 /* Pods-ChestController.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChestController.release.xcconfig"; path = "Pods/Target Support Files/Pods-ChestController/Pods-ChestController.release.xcconfig"; sourceTree = "<group>"; };
 		C8AC6655B7146B5EEA2A5A49 /* Pods-ChestController.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChestController.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ChestController/Pods-ChestController.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -94,19 +104,40 @@
 			children = (
 				6543BD171DC77B01001A6153 /* AppDelegate.swift */,
 				6543BD1B1DC77B01001A6153 /* Main.storyboard */,
-				6564FCCD1DC7964800B40B35 /* MissionOverviewTableViewCell.swift */,
-				6543BD291DC77C99001A6153 /* MissionOverviewTableViewController.swift */,
-				6543BD2B1DC77CBD001A6153 /* MissionDetailViewController.swift */,
-				6543BD2D1DC77E43001A6153 /* MqttController.swift */,
-				6564FCCF1DC7B29300B40B35 /* ScenarioBlocks.swift */,
-				6543BD2F1DC77E65001A6153 /* RestApiController.swift */,
-				6543BD311DC77FD3001A6153 /* Mission.swift */,
-				6543BD331DC77FE8001A6153 /* Participant.swift */,
+				6564FCD31DC7B42700B40B35 /* Models */,
+				6564FCD21DC7B41900B40B35 /* Controller */,
 				6543BD1E1DC77B01001A6153 /* Assets.xcassets */,
 				6543BD201DC77B01001A6153 /* LaunchScreen.storyboard */,
 				6543BD231DC77B01001A6153 /* Info.plist */,
 			);
 			path = ChestController;
+			sourceTree = "<group>";
+		};
+		6564FCD21DC7B41900B40B35 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				6568597D1DCE08BD006C5B24 /* ComponentTestController.swift */,
+				6543BD291DC77C99001A6153 /* MissionOverviewTableViewController.swift */,
+				6543BD2B1DC77CBD001A6153 /* MissionDetailViewController.swift */,
+				6543BD2D1DC77E43001A6153 /* MqttController.swift */,
+				6543BD2F1DC77E65001A6153 /* RestApiController.swift */,
+			);
+			name = Controller;
+			sourceTree = "<group>";
+		};
+		6564FCD31DC7B42700B40B35 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				6564FCCD1DC7964800B40B35 /* MissionOverviewTableViewCell.swift */,
+				6564FCCF1DC7B29300B40B35 /* ScenarioBlocks.swift */,
+				656859811DCE18B2006C5B24 /* LogMessage.swift */,
+				6568597F1DCE0C76006C5B24 /* ScenarioBlock.swift */,
+				656859851DCF416C006C5B24 /* Event.swift */,
+				656859831DCF40E3006C5B24 /* Sensors.swift */,
+				6543BD311DC77FD3001A6153 /* Mission.swift */,
+				6543BD331DC77FE8001A6153 /* Participant.swift */,
+			);
+			name = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -233,14 +264,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				656859841DCF40E3006C5B24 /* Sensors.swift in Sources */,
 				6543BD321DC77FD3001A6153 /* Mission.swift in Sources */,
+				6568597E1DCE08BD006C5B24 /* ComponentTestController.swift in Sources */,
 				6543BD181DC77B01001A6153 /* AppDelegate.swift in Sources */,
 				6564FCD01DC7B29300B40B35 /* ScenarioBlocks.swift in Sources */,
 				6543BD2E1DC77E43001A6153 /* MqttController.swift in Sources */,
 				6543BD341DC77FE8001A6153 /* Participant.swift in Sources */,
+				656859821DCE18B2006C5B24 /* LogMessage.swift in Sources */,
 				6543BD2A1DC77C99001A6153 /* MissionOverviewTableViewController.swift in Sources */,
+				656859801DCE0C76006C5B24 /* ScenarioBlock.swift in Sources */,
 				6564FCCE1DC7964800B40B35 /* MissionOverviewTableViewCell.swift in Sources */,
 				6543BD2C1DC77CBD001A6153 /* MissionDetailViewController.swift in Sources */,
+				656859861DCF416C006C5B24 /* Event.swift in Sources */,
 				6543BD301DC77E65001A6153 /* RestApiController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
