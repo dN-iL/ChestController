@@ -15,15 +15,17 @@ protocol ScenarioBlockDelegate {
 class ScenarioBlock {
     
     let block: ScenarioBlocks
+    var rest: RestApiController
     var mqtt: MqttController
     var participantsNextEvents = [(String, Event)]()
     var events = [Event]()
     var helperDict = [Int: String]()
     var delegate: ScenarioBlockDelegate?
     
-    init(kindof: ScenarioBlocks, forMission: Mission, forParticipants: [(String, Event)], mqtt: MqttController) {
+    init(kindof: ScenarioBlocks, forMission: Mission, forParticipants: [(String, Event)], mqtt: MqttController, rest: RestApiController) {
         self.block = kindof
         self.mqtt = mqtt
+        self.rest = rest
         self.participantsNextEvents = forParticipants
     }
     
@@ -50,7 +52,7 @@ class ScenarioBlock {
         case Event.Start:
             mqtt.logScenarioBlockStart(forBlock: block)
             break
-        case Event.Critical( _, let participantNr), Event.Warning( _, let participantNr), Event.BatteryEmpty(forParticipantNr: let participantNr), Event.Retreated(forParticipantNr: let participantNr):
+        case Event.Critical( _, let participantNr), Event.Warning( _, let participantNr), Event.BatteryEmpty(forParticipantNr: let participantNr), Event.Retreated(forParticipantNr: let participantNr), Event.NoConnection(forParticipantNr: let participantNr):
             //check if event is a followup of another event and therefore the corresponding participant is in the helperDict
             if let participant = helperDict[participantNr] {
                 changeEvent(name: participant, to: nextEvent)
@@ -73,8 +75,15 @@ class ScenarioBlock {
             }
             break
         case Event.End:
-            makeAllParticipantsOkay()
+            makeAllRemainingParticipantsOkay()
             mqtt.logScenarioBlockEnd(forBlock: block)
+            break
+        default:
+            break
+        }
+        switch nextEvent {
+        case .NoConnection(forParticipantNr: _):
+            rest.stopKeepAlive()
             break
         default:
             break
@@ -90,7 +99,7 @@ class ScenarioBlock {
         }
     }
     
-    private func makeAllParticipantsOkay() {
+    private func makeAllRemainingParticipantsOkay() {
         for i in 0 ..< participantsNextEvents.count {
             let event = participantsNextEvents[i].1
             switch event {
@@ -102,5 +111,12 @@ class ScenarioBlock {
             }
         }
         helperDict.removeAll()
+        switch block {
+        case .noConnection:
+            rest.startKeepAlive()
+            break
+        default:
+            break
+        }
     }
 }

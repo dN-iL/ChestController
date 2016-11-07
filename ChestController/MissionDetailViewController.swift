@@ -27,7 +27,7 @@ class MissionDetailViewController: UIViewController {
     var mission: Mission?
     var rest: RestApiController?
     var componentTest: ComponentTestController?
-    var stdDummyDataRunning = false
+    var stdDummyDataRunning = true
     
     @IBOutlet var missionNameLabel: UILabel!
     @IBOutlet var statusLabel: UILabel!

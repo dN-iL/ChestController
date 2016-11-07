@@ -9,11 +9,16 @@
 import Foundation
 
 class ComponentTestController {
-    var scenarioBlocks: [(Int, ScenarioBlock)]
+    var scenarioBlocks: [(offset: Int, ScenarioBlock)]
     var participantsNextEvents = [(String, Event)]()
     var currentValues = [(String, [Int])]()
     var publishingProcess = Timer()
     let mqtt: MqttController
+    let rest = RestApiController()
+    /* 
+    define publishing interval (in seconds) here
+    */
+    let publishingInterval = 0.5
     
     init(mission: Mission) {
         if let missionParticipants = mission.participants {
@@ -23,10 +28,12 @@ class ComponentTestController {
             }
         }
         self.mqtt = MqttController(mission: mission)
+        /*
+        define sequence of scenario blocks and their offset here
+        */
         scenarioBlocks = [
-            (0, ScenarioBlock(kindof: ScenarioBlocks.importantVsUnimportant, forMission: mission, forParticipants: participantsNextEvents, mqtt: mqtt)),
-            (24, ScenarioBlock(kindof: ScenarioBlocks.sdtWarning, forMission: mission, forParticipants: participantsNextEvents, mqtt: mqtt)),
-            (47, ScenarioBlock(kindof: ScenarioBlocks.stdCE, forMission: mission, forParticipants: participantsNextEvents, mqtt: mqtt))
+            (offset: 5, ScenarioBlock(kindof: ScenarioBlocks.noConnection, forMission: mission, forParticipants: participantsNextEvents, mqtt: mqtt, rest: rest)),
+            (offset: 29, ScenarioBlock(kindof: ScenarioBlocks.importantVsUnimportant, forMission: mission, forParticipants: participantsNextEvents, mqtt: mqtt, rest: rest))
         ]
         for (_, block) in scenarioBlocks {
             block.delegate = self
@@ -37,7 +44,7 @@ class ComponentTestController {
         for (offset, scenarioBlock) in scenarioBlocks {
             Timer.scheduledTimer(timeInterval: TimeInterval(offset), target: scenarioBlock, selector: #selector(ScenarioBlock.start), userInfo: nil, repeats: false)
         }
-        publishingProcess = Timer.scheduledTimer(timeInterval: TimeInterval(0.2), target: self, selector: #selector(ComponentTestController.publishData), userInfo: nil, repeats: true)
+        publishingProcess = Timer.scheduledTimer(timeInterval: TimeInterval(publishingInterval), target: self, selector: #selector(ComponentTestController.publishData), userInfo: nil, repeats: true)
     }
     
     func stopComponentTest() {

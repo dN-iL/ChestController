@@ -76,6 +76,8 @@ public class MqttController {
             }
             newValues[sensor.getIndex()] = sensor.getWarningBaseline()
             break
+        case .NoConnection(forParticipantNr: _):
+            newValues = [0, 0, 0, 0, 0, 0]
         case .Okay(forParticipantNr: _):
             let sensors = [Sensors.HeartRate, Sensors.StressLevel, Sensors.CoreTemp, Sensors.AnkleTemp, Sensors.WristTemp, Sensors.Humidity]
             for sensor in sensors {
@@ -98,8 +100,11 @@ public class MqttController {
         for sensor in sensors {
             var possibleChange = [Int]()
             let currentValue = forValues[sensor.getIndex()]
+            if currentValue == 0 {
+                possibleChange = [0]
+            }
             //don't go lower than the current status
-            if currentValue == sensor.getBoundaries().0 || currentValue == sensor.getBoundaries().1 || currentValue == sensor.getBoundaries().2 {
+            else if currentValue == sensor.getBoundaries().0 || currentValue == sensor.getBoundaries().1 || currentValue == sensor.getBoundaries().2 {
                 possibleChange = [0,1]
             }
             //don't go higher than the current status

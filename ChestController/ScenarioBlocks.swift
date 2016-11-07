@@ -14,7 +14,6 @@ enum ScenarioBlocks: String {
     case importantVsUnimportant
     case missionTimeExceeded
     case noConnection
-    case idle
     
     internal func getTimeline() -> [(Int, Event)] {
         switch self {
@@ -27,7 +26,9 @@ enum ScenarioBlocks: String {
         case .coreTempPeak:
             return [(0, Event.Start), (1, Event.Critical(forSensor: Sensors.CoreTemp, forParticipantNr: 1)), (3, Event.Okay(forParticipantNr: 1)), (23, Event.End)]
         case .importantVsUnimportant:
-            return [(0, Event.Start), (1, Event.Critical(forSensor: Sensors.AnkleTemp, forParticipantNr: 1)), (1, Event.Critical(forSensor: Sensors.WristTemp, forParticipantNr: 1)), (3, Event.Critical(forSensor: Sensors.HeartRate, forParticipantNr: 2)), (6, Event.Okay(forParticipantNr: 1)), (23, Event.End)]
+            return [(0, Event.Start), (1, Event.Critical(forSensor: Sensors.AnkleTemp, forParticipantNr: 1)), (1, Event.Critical(forSensor: Sensors.WristTemp, forParticipantNr: 1)), (5, Event.Critical(forSensor: Sensors.HeartRate, forParticipantNr: 2)), (7, Event.Okay(forParticipantNr: 1)), (25, Event.End)]
+        case .noConnection:
+            return [(0, Event.Start), (1, Event.NoConnection(forParticipantNr: 1)), (21, Event.End)]
         default:
             return []
         }

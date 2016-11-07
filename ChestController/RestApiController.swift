@@ -52,4 +52,12 @@ public class RestApiController {
         Alamofire.request(url+"/api/mockupData/sensorData/stop")
     }
     
+    func startKeepAlive() {
+        Alamofire.request(url+"/api/mockupData/keepAlive/start")
+    }
+    
+    func stopKeepAlive() {
+        Alamofire.request(url+"/api/mockupData/keepAlive/stop")
+    }
+    
 }
