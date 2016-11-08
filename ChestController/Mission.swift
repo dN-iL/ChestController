@@ -6,8 +6,6 @@
 //  Copyright © 2016 Daniel. All rights reserved.
 //
 
-import Foundation
-
 public class Mission {
     var id: String
     var name: String

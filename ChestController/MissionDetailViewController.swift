@@ -8,53 +8,43 @@
 
 import UIKit
 
-enum Tests {
-    case component
-    case speed
-    
-    internal func getName() -> String {
-        switch self {
-        case .component:
-            return "Component Test"
-        case .speed:
-            return "Speed Test"
-        }
-    }
-}
-
 class MissionDetailViewController: UIViewController {
     
     var mission: Mission?
     var rest: RestApiController?
-    var componentTest: ComponentTestController?
+    var componentTest: TestController?
+    var speedTest: TestController?
+    var currentCEsForSpeedTest = 1
     var stdDummyDataRunning = true
+    let possibleNumbersOfCEs = [1,2,3]
+    var selectedNumberOfCEs = 1
+    let possibleTimeBetweenBursts = [20,10,5]
+    var selectedTimeBetweenBursts = 20
     
+    @IBOutlet var numberOfCEs: UIPickerView!
+    @IBOutlet var timeBetweenBursts: UIPickerView!
     @IBOutlet var missionNameLabel: UILabel!
     @IBOutlet var statusLabel: UILabel!
     @IBOutlet var participantStatusLabel: UILabel!
-    @IBOutlet var currentActivity: UILabel!
-    @IBAction func toggleStdDummyData(_ sender: AnyObject) {
-        if let rest = rest {
-            if(stdDummyDataRunning) {
-                rest.stopStdDummyData()
-                stdDummyDataRunning = false
-            } else {
-                rest.startStdDummyData()
-                stdDummyDataRunning = true
-            }
-        }
-    }
     
     @IBAction func startComponentTest(_ sender: AnyObject) {
         showConfirmationModal(test: Tests.component)
     }
     
     @IBAction func startSpeedtest(_ sender: AnyObject) {
-        showConfirmationModal(test: Tests.speed)
+        showConfirmationModal(test: Tests.speed(numberOfCEs: selectedNumberOfCEs, timeBetweenBursts: selectedTimeBetweenBursts))
     }
     
     private func showConfirmationModal(test: Tests) {
-        let confirmationModal = UIAlertController(title: "Are you sure?", message: "The \(test.getName()) will be started as soon as you press okay.", preferredStyle: UIAlertControllerStyle.alert)
+        var message = "The \(test.getName()) will be started as soon as you press okay."
+        switch test {
+        case .speed(numberOfCEs: _, timeBetweenBursts: _):
+            message += "\nNumber of CEs: \(selectedNumberOfCEs), Time Between: \(selectedTimeBetweenBursts)"
+            break
+        default:
+            break
+        }
+        let confirmationModal = UIAlertController(title: "Are you sure?", message: message, preferredStyle: UIAlertControllerStyle.alert)
         confirmationModal.addAction(UIAlertAction(title: "Okay!", style: .default, handler: { (action: UIAlertAction!) in
             switch test {
             case .component:
@@ -71,8 +61,10 @@ class MissionDetailViewController: UIViewController {
         super.viewDidLoad()
         initializeData()
         if let mission = mission {
-            self.componentTest = ComponentTestController(mission: mission)
+            self.componentTest = TestController(kindof: Tests.component, forMission: mission)
         }
+        numberOfCEs.delegate = self
+        timeBetweenBursts.delegate = self
     }
 
     private func initializeData() {
@@ -89,11 +81,46 @@ class MissionDetailViewController: UIViewController {
     
     private func activateComponentTestData() {
         if let componentTest = componentTest {
-            componentTest.startComponentTest()
+            componentTest.startTest()
         }
     }
     
     private func activateSpeedTestData() {
-        
+        if let mission = mission {
+            speedTest = TestController(kindof: Tests.speed(numberOfCEs: selectedNumberOfCEs, timeBetweenBursts: selectedTimeBetweenBursts), forMission: mission)
+            speedTest!.startTest()
+        }
+    }
+}
+
+extension MissionDetailViewController: UIPickerViewDelegate, UIPickerViewDataSource {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        if pickerView == numberOfCEs {
+            return possibleNumbersOfCEs.count
+        } else if pickerView == timeBetweenBursts {
+            return possibleTimeBetweenBursts.count
+        }
+        return -1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        if pickerView == numberOfCEs {
+            return String(possibleNumbersOfCEs[row])
+        } else if pickerView == timeBetweenBursts {
+            return String(possibleTimeBetweenBursts[row])
+        }
+        return "n/a"
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        if pickerView == numberOfCEs {
+            selectedNumberOfCEs = possibleNumbersOfCEs[row]
+        } else if pickerView == timeBetweenBursts {
+            selectedTimeBetweenBursts = possibleTimeBetweenBursts[row]
+        }
     }
 }

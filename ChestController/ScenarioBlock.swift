@@ -19,14 +19,16 @@ class ScenarioBlock {
     var mqtt: MqttController
     var participantsNextEvents = [(String, Event)]()
     var events = [Event]()
-    var helperDict = [Int: String]()
+    var followUpHelperDict = [Int: String]()
     var delegate: ScenarioBlockDelegate?
+    let identifier: Int
     
-    init(kindof: ScenarioBlocks, forMission: Mission, forParticipants: [(String, Event)], mqtt: MqttController, rest: RestApiController) {
+    init(kindof: ScenarioBlocks, forParticipants: [(String, Event)], mqtt: MqttController, rest: RestApiController) {
         self.block = kindof
         self.mqtt = mqtt
         self.rest = rest
         self.participantsNextEvents = forParticipants
+        self.identifier = Int(arc4random_uniform(99999))
     }
     
     /*
@@ -43,28 +45,37 @@ class ScenarioBlock {
     }
     
     /*
-    updates the events in the participantsNextEvents array
+    maps next events to participants and updates the events in the participantsNextEvents array
     */
     @objc
     private func invokeMethod() {
         let nextEvent = events.remove(at: 0)
+        //replace next event in participantNextEvents
         switch nextEvent {
         case Event.Start:
-            mqtt.logScenarioBlockStart(forBlock: block)
+            mqtt.logScenarioBlockStart(forBlock: block, withIdentifier: identifier)
             break
-        case Event.Critical( _, let participantNr), Event.Warning( _, let participantNr), Event.BatteryEmpty(forParticipantNr: let participantNr), Event.Retreated(forParticipantNr: let participantNr), Event.NoConnection(forParticipantNr: let participantNr):
+        case Event.Critical( _, let participantNr), Event.Warning( _, let participantNr), Event.BatteryEmpty(forParticipantNr: let participantNr), Event.Retreated(forParticipantNr: let participantNr), Event.NoConnection(forParticipantNr: let participantNr), Event.CoreTempPeak(forParticipantNr: let participantNr), Event.Okay(forParticipantNr: let participantNr):
             //check if event is a followup of another event and therefore the corresponding participant is in the helperDict
-            if let participant = helperDict[participantNr] {
-                changeEvent(name: participant, to: nextEvent)
+            if let participant = followUpHelperDict[participantNr] {
+                for i in 0 ..< participantsNextEvents.count {
+                    if participantsNextEvents[i].0 == participant {
+                        participantsNextEvents[i].1 = nextEvent
+                    }
+                }
             } else {
                 var success = false
-                while(!success) {
+                var safetyCounter = 0
+                while(!success && safetyCounter < 50) {
+                    safetyCounter += 1
                     let index = Int(arc4random_uniform(UInt32(participantsNextEvents.count-1)))
                     let tuple = participantsNextEvents[index]
                     switch tuple.1 {
                     case .Okay:
                         participantsNextEvents[index].1 = nextEvent
-                        helperDict[participantNr] = tuple.0
+                        if participantNr != 0 {
+                            followUpHelperDict[participantNr] = tuple.0
+                        }
                         success = true
                         break
                     default:
@@ -72,17 +83,41 @@ class ScenarioBlock {
                         break
                     }
                 }
+                if safetyCounter == 50 {
+                    print("Couldn't find free participant!")
+                }
             }
             break
         case Event.End:
-            makeAllRemainingParticipantsOkay()
-            mqtt.logScenarioBlockEnd(forBlock: block)
-            break
-        default:
+            for usedParticipant in followUpHelperDict {
+                for i in 0..<participantsNextEvents.count {
+                    if usedParticipant.value == participantsNextEvents[i].0 {
+                        let event = participantsNextEvents[i].1
+                        switch event {
+                        case .Okay(forParticipantNr: _), .Retreated(forParticipantNr: _):
+                            break
+                        default:
+                            participantsNextEvents[i].1 = Event.Okay(forParticipantNr: 0)
+                        }
+                    }
+                }
+            }
+            followUpHelperDict.removeAll()
+            switch block {
+            case .noConnection:
+                print("======STARTING keepAlive")
+                rest.startKeepAlive()
+                break
+            default:
+                break
+            }
+            mqtt.logScenarioBlockEnd(forBlock: block, withIdentifier: identifier)
             break
         }
+        //stop keepAlive when no connection event occurs
         switch nextEvent {
         case .NoConnection(forParticipantNr: _):
+            print("======STOPPING keepAlive")
             rest.stopKeepAlive()
             break
         default:
@@ -90,33 +125,9 @@ class ScenarioBlock {
         }
         delegate?.updateEvents(withNew: participantsNextEvents)
     }
+
     
-    private func changeEvent(name: String, to: Event) {
-        for var tuple in participantsNextEvents {
-            if tuple.0 == name {
-                tuple.1 = to
-            }
-        }
-    }
-    
-    private func makeAllRemainingParticipantsOkay() {
-        for i in 0 ..< participantsNextEvents.count {
-            let event = participantsNextEvents[i].1
-            switch event {
-            case .Okay(forParticipantNr: _), .Retreated(forParticipantNr: _):
-                break
-            default:
-                participantsNextEvents[i].1 = Event.Okay(forParticipantNr: 0)
-                break
-            }
-        }
-        helperDict.removeAll()
-        switch block {
-        case .noConnection:
-            rest.startKeepAlive()
-            break
-        default:
-            break
-        }
+    func updateEvents(withNew: [(String, Event)]) {
+        self.participantsNextEvents = withNew
     }
 }

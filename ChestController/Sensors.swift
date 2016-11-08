@@ -10,7 +10,6 @@ import Foundation
 
 enum Sensors {
     case HeartRate
-    case StressLevel
     case CoreTemp
     case AnkleTemp
     case WristTemp
@@ -20,16 +19,14 @@ enum Sensors {
         switch self {
         case .HeartRate:
             return 0
-        case .StressLevel:
-            return 1
         case .CoreTemp:
-            return 2
+            return 1
         case .AnkleTemp:
-            return 3
+            return 2
         case .WristTemp:
-            return 4
+            return 3
         case .Humidity:
-            return 5
+            return 4
         }
     }
     
@@ -37,8 +34,6 @@ enum Sensors {
         switch self {
         case .HeartRate:
             return "heartRate"
-        case .StressLevel:
-            return ""
         case .CoreTemp:
             return "coreTemperature"
         case .AnkleTemp:
@@ -50,19 +45,17 @@ enum Sensors {
         }
     }
     
-    //returns (lowerNormal, lowerWarning, lowerCritical)
-    internal func getBoundaries() -> (Int,Int,Int) {
+    //returns (lowerNormal, lowerWarning, lowerCritical, maximum)
+    internal func getBoundaries() -> (Int,Int,Int,Int) {
         switch self {
         case .HeartRate:
-            return (80,180,185)
-        case .StressLevel:
-            return (0,6,8)
+            return (80,180,185,200)
         case .CoreTemp:
-            return (36,37,39)
+            return (36,38,40,42)
         case .AnkleTemp, .WristTemp:
-            return (30,39,43)
+            return (30,39,43,45)
         case .Humidity:
-            return (20,80,90)
+            return (20,80,90,100)
         }
     }
     
@@ -70,10 +63,8 @@ enum Sensors {
         switch self {
         case .HeartRate:
             return 90
-        case .StressLevel:
-            return 1
         case .CoreTemp:
-            return 36
+            return 37
         case .AnkleTemp, .WristTemp:
             return 34
         case .Humidity:
@@ -85,10 +76,8 @@ enum Sensors {
         switch self {
         case .HeartRate:
             return 183
-        case .StressLevel:
-            return 7
         case .CoreTemp:
-            return 38
+            return 39
         case .AnkleTemp, .WristTemp:
             return 40
         case .Humidity:
@@ -100,8 +89,6 @@ enum Sensors {
         switch self {
         case .HeartRate:
             return 190
-        case .StressLevel:
-            return 9
         case .CoreTemp:
             return 40
         case .AnkleTemp, .WristTemp:
@@ -118,8 +105,6 @@ enum Sensors {
         case 0:
             return Sensors.HeartRate
         case 1:
-            return Sensors.CoreTemp
-        case 2:
             return Sensors.Humidity
         default:
             return Sensors.HeartRate

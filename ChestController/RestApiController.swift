@@ -33,7 +33,6 @@ public class RestApiController {
     
     private func processMissionsFromJSON(jsonObj: JSON) -> [Mission] {
         var missions = [Mission]()
-        print(jsonObj)
         for(_, missionJson):(String, JSON) in jsonObj {
             var participants = [Participant]()
             for(_, participantJson):(String, JSON) in missionJson["participants"] {

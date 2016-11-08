@@ -6,8 +6,6 @@
 //  Copyright © 2016 Daniel. All rights reserved.
 //
 
-import Foundation
-
 public class Participant {
     var name: String?
     var id: String

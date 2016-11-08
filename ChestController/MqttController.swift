@@ -25,38 +25,40 @@ public class MqttController {
         mqtt.publish(topic, withString: message)
     }
     
-    func logScenarioBlockStart(forBlock: ScenarioBlocks) {
-        sendScenarioBlockLog(startEnd: "startScenarioBlock", forBlock: forBlock)
+    /*
+    log start and end of each scenario block
+    */
+    
+    func logScenarioBlockStart(forBlock: ScenarioBlocks, withIdentifier: Int) {
+        sendScenarioBlockLog(startEnd: "startScenarioBlock", forBlock: forBlock, withIdentifier: withIdentifier)
     }
     
-    func logScenarioBlockEnd(forBlock: ScenarioBlocks) {
-        sendScenarioBlockLog(startEnd: "endScenarioBlock", forBlock: forBlock)
+    func logScenarioBlockEnd(forBlock: ScenarioBlocks, withIdentifier: Int) {
+        sendScenarioBlockLog(startEnd: "endScenarioBlock", forBlock: forBlock, withIdentifier: withIdentifier)
     }
     
-    private func sendScenarioBlockLog(startEnd: String, forBlock: ScenarioBlocks) {
+    private func sendScenarioBlockLog(startEnd: String, forBlock: ScenarioBlocks, withIdentifier: Int) {
         let timestamp = round(NSDate().timeIntervalSince1970)
-        let helperDict = ["event": startEnd, "description": forBlock.rawValue, "timestamp": String(timestamp)]
+        let helperDict = ["event": startEnd, "description": "\(forBlock.rawValue)-\(String(withIdentifier))", "timestamp": String(timestamp)]
         let jsonMessage = try! JSONSerialization.data(withJSONObject: helperDict, options: JSONSerialization.WritingOptions.prettyPrinted)
         let stringMessage = NSString(data: jsonMessage, encoding: String.Encoding.ascii.rawValue)
         if let stringMessage = stringMessage {
-            print(stringMessage)
             let stringWithoutLinebreaks = stringMessage.replacingOccurrences(of: "\n", with: "")
             mqtt.publish("logs", withString: stringWithoutLinebreaks)
         }
     }
     
+    /*
+    publish sensor values for one participant according to the event
+    */
     func publishEvent(event: Event, forParticipant: String, baseValues:[Int]) -> [Int] {
-        let newValues = generateValues(forEvent: event, baseValues: baseValues)
-        let topicAndMessage = generateMessages(forEvent: event, forParticipant: forParticipant, withValues: newValues)
+        let newBaselineValues = generateNewBaseline(forEvent: event, withBaseValues: baseValues)
+        let nextValues = generateNextValues(forValues: newBaselineValues)
+        let topicAndMessage = generateMessages(forEvent: event, forParticipant: forParticipant, withValues: nextValues)
         for (topic, message) in topicAndMessage {
             mqtt.publish(topic, withString: message)
         }
-        return newValues
-    }
-    
-    private func generateValues(forEvent: Event, baseValues: [Int]) -> [Int] {
-        let newValues = generateNewBaseline(forEvent: forEvent, withBaseValues: baseValues)
-        return generateNextValues(forValues: newValues)
+        return nextValues
     }
     
     private func generateNewBaseline(forEvent: Event, withBaseValues: [Int]) -> [Int] {
@@ -64,7 +66,7 @@ public class MqttController {
         switch forEvent {
         case .Critical(forSensor: let sensor, forParticipantNr: _):
             let currentValue = newValues[sensor.getIndex()]
-            if currentValue >= sensor.getBoundaries().2 {
+            if currentValue >= sensor.getBoundaries().2 && currentValue < sensor.getBoundaries().3 {
                 break
             }
             newValues[sensor.getIndex()] = sensor.getCriticalBaseline()
@@ -77,15 +79,16 @@ public class MqttController {
             newValues[sensor.getIndex()] = sensor.getWarningBaseline()
             break
         case .NoConnection(forParticipantNr: _):
-            newValues = [0, 0, 0, 0, 0, 0]
-        case .Okay(forParticipantNr: _):
-            let sensors = [Sensors.HeartRate, Sensors.StressLevel, Sensors.CoreTemp, Sensors.AnkleTemp, Sensors.WristTemp, Sensors.Humidity]
-            for sensor in sensors {
-                let currentValue = newValues[sensor.getIndex()]
-                if currentValue < sensor.getBoundaries().1 && currentValue >= sensor.getBoundaries().0 {
-                    break
+            newValues = [0, 0, 0, 0, 0]
+        case .CoreTempPeak(forParticipantNr: _):
+            newValues[Sensors.CoreTemp.getIndex()] = 80
+        case .Okay(forParticipantNr: _), .Retreated(forParticipantNr: _):
+            let sensors = [Sensors.HeartRate, Sensors.CoreTemp, Sensors.AnkleTemp, Sensors.WristTemp, Sensors.Humidity]
+            for i in 0..<sensors.count {
+                let currentValue = newValues[sensors[i].getIndex()]
+                if !(currentValue < sensors[i].getBoundaries().1 && currentValue >= sensors[i].getBoundaries().0) {
+                    newValues[sensors[i].getIndex()] = sensors[i].getNormalBaseline()
                 }
-                newValues[sensor.getIndex()] = sensor.getNormalBaseline()
             }
             break
         default:
@@ -93,34 +96,39 @@ public class MqttController {
         }
         return newValues
     }
-    
+    //TO DO - make this better
     private func generateNextValues(forValues: [Int]) -> [Int] {
-        let sensors = [Sensors.HeartRate, Sensors.StressLevel, Sensors.CoreTemp, Sensors.AnkleTemp, Sensors.WristTemp, Sensors.Humidity]
+        let sensors = [Sensors.HeartRate, Sensors.CoreTemp, Sensors.AnkleTemp, Sensors.WristTemp, Sensors.Humidity]
         var nextValues = forValues
         for sensor in sensors {
             var possibleChange = [Int]()
             let currentValue = forValues[sensor.getIndex()]
-            if currentValue == 0 {
+            if currentValue == 0 || (sensor.getIndex() == 1 && currentValue == 80) {
                 possibleChange = [0]
             }
             //don't go lower than the current status
             else if currentValue == sensor.getBoundaries().0 || currentValue == sensor.getBoundaries().1 || currentValue == sensor.getBoundaries().2 {
-                possibleChange = [0,1]
+                possibleChange = [1]
             }
-            //don't go higher than the current status
-            else if currentValue == sensor.getBoundaries().1 - 1 || currentValue == sensor.getBoundaries().2 - 1 {
-                possibleChange = [-1,0]
+            //don't go higher than the current status or the maximum
+            else if currentValue == sensor.getBoundaries().1 - 1 || currentValue == sensor.getBoundaries().2 - 1 || currentValue == sensor.getBoundaries().3 {
+                possibleChange = [-1]
             } else {
-                possibleChange = [-1,0,1]
+                possibleChange = [-1,1]
             }
-            let randomIndex = arc4random_uniform(UInt32(possibleChange.count-1))
-            nextValues[sensor.getIndex()] = currentValue + possibleChange[Int(randomIndex)]
+            var increment = 0
+            if possibleChange.count == 1 {
+                increment = possibleChange[0]
+            } else {
+                increment = possibleChange[Int(arc4random_uniform(2))]
+            }
+            nextValues[sensor.getIndex()] = currentValue + increment
         }
         return nextValues
     }
     
     private func generateMessages(forEvent: Event, forParticipant: String, withValues: [Int]) -> [(String, String)] {
-        let sensors = [Sensors.HeartRate, Sensors.StressLevel, Sensors.CoreTemp, Sensors.AnkleTemp, Sensors.WristTemp, Sensors.Humidity]
+        let sensors = [Sensors.HeartRate, Sensors.CoreTemp, Sensors.AnkleTemp, Sensors.WristTemp, Sensors.Humidity]
         var topicsAndMessages = [(String, String)]()
         let timestamp = round(NSDate().timeIntervalSince1970)
         let userId = forParticipant

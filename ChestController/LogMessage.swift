@@ -6,8 +6,6 @@
 //  Copyright © 2016 Daniel. All rights reserved.
 //
 
-import Foundation
-
 enum Events {
     case Start
     case End
