@@ -27,7 +27,7 @@ class TestController {
         if let missionParticipants = mission.participants {
             for participant in missionParticipants {
                 participantsNextEvents.append((participant.id, Event.Okay(forParticipantNr: 0)))
-                currentValues.append((participant.id, [90, 36, 37, 37, 60]))
+                currentValues.append((participant.id, Sensors.getBaselines()))
             }
         }
         self.mqtt = MqttController(mission: mission)

@@ -79,11 +79,11 @@ public class MqttController {
             newValues[sensor.getIndex()] = sensor.getWarningBaseline()
             break
         case .NoConnection(forParticipantNr: _):
-            newValues = [0, 0, 0, 0, 0]
+            newValues = [0, 0, 0, 0, 0, 0]
         case .CoreTempPeak(forParticipantNr: _):
             newValues[Sensors.CoreTemp.getIndex()] = 80
         case .Okay(forParticipantNr: _), .Retreated(forParticipantNr: _):
-            let sensors = [Sensors.HeartRate, Sensors.CoreTemp, Sensors.AnkleTemp, Sensors.WristTemp, Sensors.Humidity]
+            let sensors = Sensors.getAll()
             for i in 0..<sensors.count {
                 let currentValue = newValues[sensors[i].getIndex()]
                 if !(currentValue < sensors[i].getBoundaries().1 && currentValue >= sensors[i].getBoundaries().0) {
@@ -98,7 +98,7 @@ public class MqttController {
     }
     //TO DO - make this better
     private func generateNextValues(forValues: [Int]) -> [Int] {
-        let sensors = [Sensors.HeartRate, Sensors.CoreTemp, Sensors.AnkleTemp, Sensors.WristTemp, Sensors.Humidity]
+        let sensors = Sensors.getAll()
         var nextValues = forValues
         for sensor in sensors {
             var possibleChange = [Int]()
@@ -128,7 +128,7 @@ public class MqttController {
     }
     
     private func generateMessages(forEvent: Event, forParticipant: String, withValues: [Int]) -> [(String, String)] {
-        let sensors = [Sensors.HeartRate, Sensors.CoreTemp, Sensors.AnkleTemp, Sensors.WristTemp, Sensors.Humidity]
+        let sensors = Sensors.getAll()
         var topicsAndMessages = [(String, String)]()
         let timestamp = round(NSDate().timeIntervalSince1970)
         let userId = forParticipant

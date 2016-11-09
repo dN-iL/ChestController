@@ -14,6 +14,7 @@ enum Sensors {
     case AnkleTemp
     case WristTemp
     case Humidity
+    case BreathingRate
     
     internal func getIndex() -> Int {
         switch self {
@@ -27,6 +28,8 @@ enum Sensors {
             return 3
         case .Humidity:
             return 4
+        case .BreathingRate:
+            return 5
         }
     }
     
@@ -42,6 +45,8 @@ enum Sensors {
             return "wristTemperature"
         case .Humidity:
             return "backHumidity"
+        case .BreathingRate:
+            return "breathingRate"
         }
     }
     
@@ -56,6 +61,8 @@ enum Sensors {
             return (30,39,43,45)
         case .Humidity:
             return (20,80,90,100)
+        case .BreathingRate:
+            return (18,22,30,50)
         }
     }
     
@@ -69,6 +76,8 @@ enum Sensors {
             return 34
         case .Humidity:
             return 60
+        case .BreathingRate:
+            return 20
         }
     }
     
@@ -82,6 +91,8 @@ enum Sensors {
             return 40
         case .Humidity:
             return 85
+        case .BreathingRate:
+            return 25
         }
     }
     
@@ -95,6 +106,8 @@ enum Sensors {
             return 45
         case .Humidity:
             return 95
+        case .BreathingRate:
+            return 35
         }
     }
     
@@ -109,5 +122,13 @@ enum Sensors {
         default:
             return Sensors.HeartRate
         }
+    }
+    
+    static internal func getAll() -> [Sensors] {
+        return [Sensors.HeartRate, Sensors.CoreTemp, Sensors.AnkleTemp, Sensors.WristTemp, Sensors.Humidity, Sensors.BreathingRate] 
+    }
+    
+    static internal func getBaselines() -> [Int] {
+        return [90, 36, 37, 37, 60, 20]
     }
 }
