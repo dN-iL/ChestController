@@ -12,34 +12,35 @@ class MissionDetailViewController: UIViewController {
     
     var mission: Mission?
     var rest: RestApiController?
+    var oneCE: TestController?
     var componentTest: TestController?
     var speedTest: TestController?
     var currentCEsForSpeedTest = 1
     var stdDummyDataRunning = true
-    let possibleNumbersOfCEs = [1,2,3]
+    var possibleNumbersOfCEs: [Int]?
     var selectedNumberOfCEs = 1
-    let possibleTimeBetweenBursts = [20,10,5]
-    var selectedTimeBetweenBursts = 20
     
     @IBOutlet var numberOfCEs: UIPickerView!
-    @IBOutlet var timeBetweenBursts: UIPickerView!
     @IBOutlet var missionNameLabel: UILabel!
     @IBOutlet var statusLabel: UILabel!
     @IBOutlet var participantStatusLabel: UILabel!
     
+    @IBAction func fireOneCE(_ sender: Any) {
+        showConfirmationModal(test: Tests.oneCE)
+    }
     @IBAction func startComponentTest(_ sender: AnyObject) {
         showConfirmationModal(test: Tests.component)
     }
     
     @IBAction func startSpeedtest(_ sender: AnyObject) {
-        showConfirmationModal(test: Tests.speed(numberOfCEs: selectedNumberOfCEs, timeBetweenBursts: selectedTimeBetweenBursts))
+        showConfirmationModal(test: Tests.speed(numberOfCEs: selectedNumberOfCEs))
     }
     
     private func showConfirmationModal(test: Tests) {
         var message = "The \(test.getName()) will be started as soon as you press okay."
         switch test {
-        case .speed(numberOfCEs: _, timeBetweenBursts: _):
-            message += "\nNumber of CEs: \(selectedNumberOfCEs), Time Between: \(selectedTimeBetweenBursts)"
+        case .speed(numberOfCEs: _):
+            message += "\nNumber of CEs: \(selectedNumberOfCEs)"
             break
         default:
             break
@@ -47,6 +48,8 @@ class MissionDetailViewController: UIViewController {
         let confirmationModal = UIAlertController(title: "Are you sure?", message: message, preferredStyle: UIAlertControllerStyle.alert)
         confirmationModal.addAction(UIAlertAction(title: "Okay!", style: .default, handler: { (action: UIAlertAction!) in
             switch test {
+            case .oneCE:
+                self.activateOneCE()
             case .component:
                 self.activateComponentTestData()
             case .speed:
@@ -62,9 +65,19 @@ class MissionDetailViewController: UIViewController {
         initializeData()
         if let mission = mission {
             self.componentTest = TestController(kindof: Tests.component, forMission: mission)
+            self.oneCE = TestController(kindof: Tests.oneCE, forMission: mission)
+            if let participants = mission.participants {
+                let numberOfPaticipants = participants.count
+                if numberOfPaticipants < 4 {
+                    possibleNumbersOfCEs = [1]
+                } else if numberOfPaticipants < 6 {
+                    possibleNumbersOfCEs = [1,2]
+                } else {
+                    possibleNumbersOfCEs = [1,2,3]
+                }
+            }
         }
         numberOfCEs.delegate = self
-        timeBetweenBursts.delegate = self
     }
 
     private func initializeData() {
@@ -79,6 +92,12 @@ class MissionDetailViewController: UIViewController {
         }
     }
     
+    private func activateOneCE() {
+        if let oneCE = oneCE {
+            oneCE.startTest()
+        }
+    }
+    
     private func activateComponentTestData() {
         if let componentTest = componentTest {
             componentTest.startTest()
@@ -87,7 +106,7 @@ class MissionDetailViewController: UIViewController {
     
     private func activateSpeedTestData() {
         if let mission = mission {
-            speedTest = TestController(kindof: Tests.speed(numberOfCEs: selectedNumberOfCEs, timeBetweenBursts: selectedTimeBetweenBursts), forMission: mission)
+            speedTest = TestController(kindof: Tests.speed(numberOfCEs: selectedNumberOfCEs), forMission: mission)
             speedTest!.startTest()
         }
     }
@@ -99,28 +118,22 @@ extension MissionDetailViewController: UIPickerViewDelegate, UIPickerViewDataSou
     }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        if pickerView == numberOfCEs {
+        if let possibleNumbersOfCEs = possibleNumbersOfCEs {
             return possibleNumbersOfCEs.count
-        } else if pickerView == timeBetweenBursts {
-            return possibleTimeBetweenBursts.count
         }
-        return -1
+        return 0
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        if pickerView == numberOfCEs {
+        if let possibleNumbersOfCEs = possibleNumbersOfCEs {
             return String(possibleNumbersOfCEs[row])
-        } else if pickerView == timeBetweenBursts {
-            return String(possibleTimeBetweenBursts[row])
         }
-        return "n/a"
+        return "no participants found"
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        if pickerView == numberOfCEs {
+        if let possibleNumbersOfCEs = possibleNumbersOfCEs {
             selectedNumberOfCEs = possibleNumbersOfCEs[row]
-        } else if pickerView == timeBetweenBursts {
-            selectedTimeBetweenBursts = possibleTimeBetweenBursts[row]
         }
     }
 }

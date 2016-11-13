@@ -8,7 +8,8 @@
 
 enum Tests {
     case component
-    case speed(numberOfCEs: Int, timeBetweenBursts: Int)
+    case speed(numberOfCEs: Int)
+    case oneCE
     
     internal func getName() -> String {
         switch self {
@@ -16,6 +17,8 @@ enum Tests {
             return "Component Test"
         case .speed:
             return "Speed Test"
+        case .oneCE:
+            return "Fire One CE"
         }
     }
 }

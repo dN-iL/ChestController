@@ -51,18 +51,18 @@ enum Sensors {
     }
     
     //returns (lowerNormal, lowerWarning, lowerCritical, maximum)
-    internal func getBoundaries() -> (Int,Int,Int,Int) {
+    internal func getBoundaries() -> [(Int,Int)] {
         switch self {
         case .HeartRate:
-            return (80,180,185,200)
+            return [(80,175),(182,195),(210,220)]
         case .CoreTemp:
-            return (36,38,40,42)
+            return [(36,37),(40,41),(42,43)]
         case .AnkleTemp, .WristTemp:
-            return (30,39,43,45)
+            return [(33,37),(40,41),(42,43)]
         case .Humidity:
-            return (20,80,90,100)
+            return [(20,75),(82,85),(98,100)]
         case .BreathingRate:
-            return (18,22,30,50)
+            return [(18,21),(23,24),(25,45)]
         }
     }
     
@@ -71,7 +71,7 @@ enum Sensors {
         case .HeartRate:
             return 90
         case .CoreTemp:
-            return 37
+            return 36
         case .AnkleTemp, .WristTemp:
             return 34
         case .Humidity:
@@ -84,28 +84,28 @@ enum Sensors {
     internal func getWarningBaseline() -> Int {
         switch self {
         case .HeartRate:
-            return 183
+            return 185
         case .CoreTemp:
-            return 39
+            return 40
         case .AnkleTemp, .WristTemp:
             return 40
         case .Humidity:
-            return 85
+            return 83
         case .BreathingRate:
-            return 25
+            return 23
         }
     }
     
     internal func getCriticalBaseline() -> Int {
         switch self {
         case .HeartRate:
-            return 190
+            return 215
         case .CoreTemp:
-            return 40
+            return 42
         case .AnkleTemp, .WristTemp:
-            return 45
+            return 43
         case .Humidity:
-            return 95
+            return 97
         case .BreathingRate:
             return 35
         }
@@ -113,15 +113,9 @@ enum Sensors {
     
     //for std ce and std warning
     static internal func getRandom() -> Sensors {
-        let number = arc4random_uniform(2)
-        switch number {
-        case 0:
-            return Sensors.HeartRate
-        case 1:
-            return Sensors.Humidity
-        default:
-            return Sensors.HeartRate
-        }
+        let possibleSensors = [Sensors.HeartRate, Sensors.Humidity]
+        let randomIndex = Int(arc4random_uniform(UInt32(possibleSensors.count)))
+        return possibleSensors[randomIndex]
     }
     
     static internal func getAll() -> [Sensors] {
@@ -129,6 +123,6 @@ enum Sensors {
     }
     
     static internal func getBaselines() -> [Int] {
-        return [90, 36, 37, 37, 60, 20]
+        return [90, 36, 34, 34, 60, 20]
     }
 }

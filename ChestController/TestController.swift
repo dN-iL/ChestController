@@ -32,25 +32,35 @@ class TestController {
         }
         self.mqtt = MqttController(mission: mission)
         self.scenarioBlocks = [(Int, ScenarioBlocks)]()
+        var blockSequence = [ScenarioBlocks]()
         switch kindof {
-        case .component:
+        case .component, .oneCE:
+            switch kindof {
             /* COMPONENT TEST CONFIG
-             define sequence of scenario blocks, offset of first block
-             and pause between blocks here
-             */
-            let blockSequence = [
-                ScenarioBlocks.stdCE,
-                ScenarioBlocks.stdWarning,
-                ScenarioBlocks.stdWarning,
-                ScenarioBlocks.stdCE,
-                //Battery empty
-                ScenarioBlocks.coreTempPeak,
-                ScenarioBlocks.stdWarning,
-                ScenarioBlocks.importantVsUnimportant,
-                //Mission time exceeded
-                ScenarioBlocks.stdWarning,
-                ScenarioBlocks.noConnection
-            ]
+            define sequence of scenario blocks, offset of first block
+            and pause between blocks here
+            */
+            case .component:
+                blockSequence = [
+                    ScenarioBlocks.stdCE,
+                    ScenarioBlocks.stdWarning,
+                    ScenarioBlocks.stdWarning,
+                    ScenarioBlocks.stdCE,
+                    //Battery empty
+                    ScenarioBlocks.coreTempPeak,
+                    ScenarioBlocks.stdWarning,
+                    ScenarioBlocks.importantVsUnimportant,
+                    //Mission time exceeded
+                    ScenarioBlocks.stdWarning,
+                    ScenarioBlocks.noConnection
+                ]
+                break
+            case .oneCE:
+                blockSequence = [ScenarioBlocks.stdCE]
+                break
+            default:
+                break
+            }
             var offsetFirstBlock = 3
             let pauseBetweenBlocks = 5
             
@@ -59,24 +69,29 @@ class TestController {
                 offsetFirstBlock += block.getLength() + pauseBetweenBlocks
             }
             break
-        case .speed(let numberOfCEs, let timeBetweenBursts):
+        case .speed(let numberOfCEs):
+            /* SPEED TEST CONFIG
+             define offset of first CE, starting interval and gradual decrease here
+             */
+            var startingInterval = 20
+            let gradualDecrease = 5
             var offsetFirstBlock = 3
-            if let numberOfParticipants = mission.participants?.count {
-                var leftParticipants = numberOfParticipants
-                while leftParticipants > 0 {
+            
+            if let missionParticipants = mission.participants {
+                var leftParticipants = missionParticipants.count
+                while leftParticipants > 0 && startingInterval > 0 {
                     for i in 0..<numberOfCEs {
                         if leftParticipants > 0 {
                             scenarioBlocks.append((offset: offsetFirstBlock+i, ScenarioBlocks.stdCE))
                             leftParticipants -= 1
                         }
                     }
-                    offsetFirstBlock += timeBetweenBursts
+                    offsetFirstBlock += startingInterval
+                    startingInterval -= gradualDecrease
                 }
             }
             break
         }
-        print("==========SCENARIOBLOCKS")
-        print(scenarioBlocks)
     }
     
     func startTest() {
